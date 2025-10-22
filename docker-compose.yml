@@ -1,0 +1,32 @@
+services:
+  AccesoInsYUni:
+    build: .
+    image: acceso-ins-y-uni
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://InstitutoUniversidaddb:3306/InstitutoUniversidad
+    restart: unless-stopped
+    depends_on:
+      InstitutoUniversidaddb:
+        condition: service_healthy
+
+  InstitutoUniversidaddb:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: InstitutoUniversidad
+      MYSQL_INITDB_SKIP_TZINFO: 1
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: unless-stopped
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+
+volumes:
+  mysql_data:
